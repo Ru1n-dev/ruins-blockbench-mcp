@@ -33,7 +33,7 @@ The official Minecraft Style Guide and BB Academy's style material are best trea
 - use geometry for silhouette and texture for material/detail;
 - translate smooth forms into clean, simple volumes instead of many tiny rotated elements;
 - keep texel density coherent and avoid mixels;
-- build a base colour, shadow family, and highlight family with purposeful clusters;
+- build a base colour, shadow/value family, and purposeful material clusters;
 - look for noise, banding, pillow shading, pancake shading, unnecessary dithering, and jagged outlines;
 - for blocks, test tiling early in a 3×3 arrangement when the texture should tile;
 - for items, preserve a readable 16×16-scale silhouette and the expected upper-left light convention;

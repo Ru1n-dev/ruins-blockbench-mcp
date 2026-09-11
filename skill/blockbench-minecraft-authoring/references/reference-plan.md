@@ -22,7 +22,7 @@ For a finished `high/hero` asset, use this default minimum plan:
 |---|---|---|
 | R1 | family/style and face-role baseline | palette grammar, top/side/underside treatment, and visible face roles |
 | R2 | material structure and variation | material-specific macro/meso breakup: grain, stone clusters, metal variation, cloth/fur, stains, or cracks |
-| R3 | light, value, baked-shadow, and highlight treatment | shared light convention, per-part bright/side/dark flow, highlight placement and transition, edge/recess/contact/underside cues, and texture-versus-runtime split |
+| R3 | light, value, and baked-shadow treatment | shared light convention, per-part bright/side/dark flow, smooth value transitions, edge/recess/contact/underside cues, and texture-versus-runtime split |
 | R4 | pixel/detail-density, edge-wear, surface variation, and tiling comparator | cluster scale, near-colour variation, micro accents, edge wear, seams, borders, and readable amount of detail at target scale |
 
 Add one counted slot for every relevant companion role not covered by R1–R4: overlay/armor, eyes, emissive, animated strip, connected/tiling variant, tint, transparency/cutout, normal/roughness/PBR, or another format-specific map. Blocks commonly need connected/tiling or transparent variants. Entities commonly need body-overlay, eyes/emissive, armor/accessory, or animated companion references. A file may fill multiple roles only when its actual coverage is recorded; do not reuse a material image by convenience and claim all roles were covered.
@@ -58,7 +58,7 @@ Reference inspection may be skipped only for an explicitly unrelated custom styl
 2. Query the metadata corpus by role and family before opening images. Include transparent, animated, PBR, overlay, eye, emissive, moving-part, and companion maps only when relevant.
 3. Execute the call plan: select exactly the declared file count, normally one file per slot. If a slot has no suitable source, record its observation-only fallback or inference before continuing; never silently substitute another material-only image or silently abandon the plan.
 4. Fetch only selected files to an ignored temporary directory. Retain a provenance manifest with source URL, ref/tree SHA or local revision, original path, fetched hash, plan slot, purpose, and covered parts/faces/maps.
-5. Inspect native dimensions, alpha/transparent bounds, palette/value roles, light direction, highlight shape/transition, pixel clusters, near-colour surface variation, edge behaviour, tiling, overlays, animation metadata, companion maps, and the slot-specific observation. Record observations and decisions, not copied source pixels.
+5. Inspect native dimensions, alpha/transparent bounds, palette/value roles, light direction, smooth value transitions, pixel clusters, near-colour texture-noise structure, edge behaviour, tiling, overlays, animation metadata, companion maps, and the slot-specific observation. Record observations and decisions, not copied source pixels.
 6. Compare the selected roles to the planned silhouette, face treatment, per-part form shading, material/shading, and detail density before applying the model edit. Then choose direct, adapted, or observation-only mode and validate UV/format fit.
 7. If no suitable source exists, label the relevant slot as an inference and verify it with the live project and target runtime.
 
@@ -73,6 +73,6 @@ Reference use mode per file: <direct assignment | adapted source | observation-o
 Target: <edition/version/format/asset kind>
 Source/provenance: <paths, revision, hashes>
 Compatibility: <dimensions, UV regions, face roles, atlas, alpha/filtering, format>
-Expected decisions: <geometry | UV | pixels/material | highlight/surface variation | runtime/wiring for each slot>
+Expected decisions: <geometry | UV | pixels/material | smooth shading/surface variation | runtime/wiring for each slot>
 Unresolved slots: <fallback inference and verification plan>
 ```
