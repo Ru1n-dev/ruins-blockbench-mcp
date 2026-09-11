@@ -1,0 +1,61 @@
+[
+  {
+    "op": "group.add",
+    "ref": "root",
+    "name": "MovingPart",
+    "origin": [0, 0, 0]
+  },
+  {
+    "op": "cube.add",
+    "ref": "body",
+    "name": "Body",
+    "parent": "$root",
+    "from": [0, 0, 0],
+    "to": [4, 8, 2]
+  },
+  {
+    "op": "texture.add",
+    "ref": "palette",
+    "name": "Palette",
+    "width": 16,
+    "height": 16,
+    "color": "#4ba8d8"
+  },
+  { "op": "texture.assign", "ids": ["$root"], "texture": "$palette" },
+  {
+    "op": "uv.set",
+    "id": "$body",
+    "faces": { "north": { "uv": [0, 0, 4, 8] } }
+  },
+  {
+    "op": "animation.add",
+    "ref": "motion",
+    "name": "Swing",
+    "length": 1,
+    "loop": "loop"
+  },
+  {
+    "op": "keyframe.set",
+    "animation": "$motion",
+    "node": "$root",
+    "channel": "rotation",
+    "time": 0,
+    "values": [0, 0, 0]
+  },
+  {
+    "op": "keyframe.set",
+    "animation": "$motion",
+    "node": "$root",
+    "channel": "rotation",
+    "time": 0.5,
+    "values": [0, 45, 0]
+  },
+  {
+    "op": "keyframe.set",
+    "animation": "$motion",
+    "node": "$root",
+    "channel": "rotation",
+    "time": 1,
+    "values": [0, 0, 0]
+  }
+]

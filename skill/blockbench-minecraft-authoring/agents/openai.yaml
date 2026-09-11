@@ -1,0 +1,6 @@
+interface:
+  display_name: "Blockbench Minecraft Authoring"
+  short_description: "Ruin's MCPでMinecraftモデル・UV・テクスチャを制作"
+  default_prompt: "$blockbench-minecraft-authoring を使って、Minecraft向けモデル・UV・テクスチャを一貫して作成して。"
+policy:
+  allow_implicit_invocation: true
