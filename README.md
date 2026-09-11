@@ -79,6 +79,10 @@ The repository includes [`skill/blockbench-minecraft-authoring`](skill/blockbenc
 
 The Skill uses texture references when they help the task—for example, vanilla-like styling, compatibility with a named block/item/entity or resource pack, an exact game version, an uncertain AI-generated draft, or an unclear silhouette/material. It does not force vanilla references onto an explicitly custom art direction. When references are used, it pins the edition/version/source, compares multiple same-role assets, and records the selected paths and provenance.
 
+A reference can be used in three modes: direct assignment, adapted source, or observation-only. Direct assignment is an exceptional exact-compatibility case; normally the reference guides a whole-model texture pass. The Skill records the mode and provenance, and direct use still requires global base, value/light, face-detail, and 3D integration passes. References can provide material identity, light/value hierarchy, baked shading, and surface cues; filenames never determine resource-pack wiring.
+
+For high-quality authoring, explicit UV unwrap/mapping is mandatory before painting. Per-face UV regions are the default so material, brightness, shadows, wear, and damage can be authored independently; shared or mirrored UVs require named faces and a recorded reason. Separate islands are kept visually unified through a shared palette/value chart, consistent texel density and orientation, controlled edge padding, cross-face motif checks, and whole-model 3D review. References may be used as the source for material identity, light/value hierarchy, baked shading, and surface cues, while the Skill checks whether each cue belongs in texture pixels or runtime lighting.
+
 The helper indexes metadata rather than bundling Mojang/Microsoft image bytes. It supports the pinned Mojang Bedrock Samples tree and a local exact-version Java asset tree, including block, item, entity, attachable, animation, Texture Set, and catalog resources. Fetch only the files needed for a review:
 
 ```powershell

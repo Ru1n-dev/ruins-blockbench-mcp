@@ -2,6 +2,51 @@
 
 Use this gate during model and texture authoring. Texture reference is conditional: do not force vanilla references onto a custom art direction, but do not skip reference inspection when the request depends on an existing Minecraft family, version compatibility, or cleanup of an AI-generated draft.
 
+## What a reference texture is—and is not
+
+A reference texture can be used as a direct texture input, an adapted source, or observation-only material/shading guidance. Choose the mode explicitly based on UV compatibility, target format, edition/version, asset role, and provenance. Direct assignment is an exceptional exact-compatibility case; normally the reference guides a target-wide texture pass. A reference can provide the material, lighting, shadow, colour, alpha, and surface language; it does not automatically decide the model's UV layout or resource-pack wiring.
+
+## UV policy: unwrap first; share only as an explicit exception
+
+UV unwrap/mapping is mandatory for every texture-bearing face. Here, “unwrap” means deliberately mapping every face or polygon to an in-bounds UV island/region before painting; it does not require an unnecessarily complex organic seam layout. The default for high-quality work is one intentional region per face or face role so each surface can receive its own material, brightness, shadow, wear, damage, and pixel placement.
+
+UV sharing or mirroring is opt-in, not a convenience default. Permit it only when the faces are intentionally identical in material, lighting, wear, overlays, orientation, texel density, and expected future edits. Record the exact faces and the reason. If a face may need distinct detail, edge treatment, baked shadow, or material cues, give it a separate UV region even if the first draft uses the same colours. Hidden faces still need intentional in-bounds mapping when the target format or export can expose them; otherwise record the format-specific reason they are omitted.
+
+The texture must be authored after this UV decision. Do not paint first and then force the result onto a shared or accidental layout. A larger atlas is preferable to losing face-specific information, provided texel density remains coherent and the target format supports it.
+
+## Use references as material and shading sources
+
+When a reference is selected, use it to design the target's material and shading language, or use it as the actual texture input only when the target intentionally matches it. Even in the direct case, inspect the whole model after assignment and add the missing global and face-specific passes. Inspect and record:
+
+- base-material colour families and the value hierarchy between top, side, underside, recess, edge, and accent pixels;
+- pixel-cluster structure, grain, pores, cracks, bands, stains, edge wear, and how detail scale changes by face;
+- light direction, contact/underside shadow, ambient-occlusion-like darkening, edge highlights, and whether those cues are baked into pixels or expected from runtime lighting;
+- material cues such as wood grain, stone breakup, metal variation, cloth/fur softness, emissive regions, cutout boundaries, and transparency behaviour;
+- tiling, seam handling, overlays, and any face-specific or animated companion maps.
+
+Translate each observation into one of four decisions: geometry, UV layout, texture pixels/material data, or runtime lighting/wiring. For example, preserve a face-specific underside value in the target texture when the style bakes it into pixels, but do not add a second identical shadow through runtime lighting. For Minecraft-style assets, material is usually communicated through restrained pixel clusters and bounded value changes; PBR channels or dynamic lighting are only used when the target format and runtime support them.
+
+## Whole-model texture pass and cross-face coherence
+
+Per-face UV islands provide detail freedom; they must not turn the asset into unrelated face paintings. Never approve a face only from an isolated UV editor or flat image. Keep the full textured model visible and use this pass order:
+
+1. **UV and atlas blueprint:** map every texture-bearing face, name or group face roles, keep texel density consistent in pixels per model unit, orient related surfaces consistently, and reserve padding/bleed according to the target's filtering behaviour.
+2. **Global base pass:** cover every island with the same material family, base palette, and broad surface language. This is the unity layer; do not begin with independent random colours on each face.
+3. **Global value/light pass:** establish the declared light direction and value ladder across the entire asset. Apply top/side/underside differences consistently and keep baked shading subtle enough that runtime light does not duplicate the same effect.
+4. **Face-specific pass:** add per-face grain, dirt, cracks, wear, contact darkening, edge treatment, and unique material cues. A local change is valid when it follows the material rules established in the global passes.
+5. **Continuity/integration pass:** inspect adjacent faces in the 3D textured view. Align motifs that cross an edge, continue grain or damage where geometry implies continuity, match border values, remove accidental seams, and deliberately mark true material boundaries. Do not force continuity across a real hard edge or a different material.
+6. **Whole-model balance pass:** zoom out to target display scale and compare front, back, sides, top, bottom, and three-quarter views. Reduce a face detail that dominates the asset, strengthen a face that disappears, and check the silhouette and material read again.
+
+To prevent separate UV islands from losing unity, maintain one master palette/value chart, one texel-density target, stable orientation rules, a recorded edge-pair list for cross-face motifs, and consistent padding/filtering. Use a small allowed value range for face-role adjustments rather than picking unrelated per-face colours. If a discontinuity is intentional—such as a cut edge, underside, metal fitting, or separate overlay—record it as a material boundary instead of treating it as a UV error.
+
+Do not:
+
+- assign one reference image to every face unless the target intentionally uses the same image/UV on every face;
+- let the reference filename decide the texture path or edition/version wiring;
+- use a screenshot, thumbnail, or one famous block/entity as the universal Minecraft baseline.
+
+The expected output of reference use is a short record containing the selected mode (`direct assignment`, `adapted source`, or `observation-only`), source/provenance, compatibility checks, whole-model pass status, and the resulting geometry, UV, pixel/material, and runtime/resource-pack decisions. Direct assignment is valid only when the image dimensions, UV regions, face roles, atlas role, alpha/filtering, and target format are intentionally compatible; it still requires the whole-model integration pass. Otherwise adapt it or use it only as guidance.
+
 ## When to use texture references
 
 Create a pinned reference set when at least one of these is true:
@@ -22,10 +67,26 @@ Reference inspection may be skipped when the user explicitly wants an unrelated 
 3. Select multiple same-role comparators rather than one famous asset. Prefer a small set that covers the expected material, alpha mode, scale, and animation/tint behaviour.
 4. Fetch only the selected files to an ignored temporary directory. Keep the generated provenance manifest with source URL, ref/tree SHA or local revision, original path, and fetched hash.
 5. Inspect each reference at native resolution. Record dimensions, alpha/transparent bounds, palette roles, light direction, cluster and edge behaviour, tiling, overlays, animation metadata, and companion maps. Record observations and decisions, not copied source pixels.
-6. Apply the observations to silhouette, face proportions, UV scale, palette, material cues, and resource-pack wiring. A reference image does not replace the actual project UVs or the target format's catalog/model/entity links.
+6. Convert the observations into a target-specific plan: decide the silhouette and face roles first, explicitly unwrap/map every texture-bearing face, and reserve separate UV regions by default. Share or mirror a region only for the recorded identical-face exceptions. Then select the reference mode: assign directly when compatibility checks pass, adapt the source when the target differs, or use the observations to author pixels/material data when it is observation-only. A reference image does not replace the actual project UVs or the target format's catalog/model/entity links.
 7. If no suitable reference exists, label the relevant decision as an inference and verify it with the live project and target runtime.
 
 For an AI-generated draft, reference comparison is a cleanup aid: remove background halos, reduce accidental colours, preserve hard pixel edges, correct alpha, resize with nearest-neighbour when resampling is required, and align marks to the model's UV texels. Do not let the AI draft determine the UV layout by itself.
+
+## Concrete AI handoff format
+
+When asking an AI to use a reference, make the request explicit:
+
+```text
+Reference use mode: <direct assignment | adapted source | observation-only>
+Target: <edition/version/format/asset kind>
+Model UV: mandatory explicit unwrap; <texture size and per-face/box/custom UV layout>; shared/mirrored regions only for <named identical faces, or none>
+Observe: <face roles, material, palette, light direction, baked/runtime shading, alpha, tiling, overlays>
+Texture action: <assign directly | adapt source | author pixels/material from observations>
+Verify: UV bounds, seams, alpha/filtering, and the required multi-view checklist
+Record: source paths, revision, observations, and decisions
+```
+
+For each selected file, the AI should be able to answer: “Which mode was used, why is it compatible with this asset, and what material/shading/UV/runtime decision did it support?” If it cannot answer those questions, the reference was not used reliably.
 
 ## Required multi-view review
 
