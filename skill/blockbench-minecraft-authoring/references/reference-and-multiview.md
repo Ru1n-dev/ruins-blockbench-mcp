@@ -53,6 +53,16 @@ When a reference is selected, use it to design the target's material and shading
 
 Translate each observation into one of four decisions: geometry, UV layout, texture pixels/material data, or runtime lighting/wiring. For example, preserve a face-specific underside value in the target texture when the style bakes it into pixels, but do not add a second identical shadow through runtime lighting. For Minecraft-style assets, material is usually communicated through restrained pixel clusters and bounded value changes; PBR channels or dynamic lighting are only used when the target format and runtime support them.
 
+## Near-colour ramps, stepped shadows, and isolated-pixel gate
+
+Use near-colours deliberately when a single base/shadow colour makes the texture look flat. Define a small ramp for each material family and face role—usually base, one or two shadow steps, one light step, and an optional highlight or accent—then reuse that ramp across the whole model. New shades must have a named purpose such as plane separation, curvature, contact, grain, wear, or a controlled transition; do not add colours only to increase the palette count.
+
+Smooth-looking shadow is allowed as a low-frequency, pixel-authored value transition. Build it from broad connected clusters and roughly 3–5 opaque value steps, with the declared light direction and no pillow shading. Keep fixed material/face shading in the texture and leave dynamic cast shadows or changing illumination to runtime lighting; never duplicate the same shadow in both layers.
+
+Deliberate manual pixel-AA is a separate, limited tool. It may soften a selected diagonal or curved boundary, or bridge a controlled tonal transition, by placing 1–2 adjacent near-colour steps from the declared ramp. It must remain grid-aligned and fully opaque on opaque/cutout textures. Automatic anti-aliasing, blur, linear filtering, fractional alpha, and light/dark halos at transparent edges are not permitted by this rule. Transparent or translucent assets may deviate only when the target format explicitly requires and supports it.
+
+Treat a conspicuous singleton pixel as a defect by default. Remove or merge it into a neighbouring cluster unless it has a documented role—for example a sparkle, eye, tiny emissive point, intentional edge termination, or a specific one-pixel mark. A singleton is not justified merely because it is a different colour. Review the texture at native 1:1 scale and the target game/display scale; if the pixel attracts attention without improving the material, form, or focal point, it fails the audit.
+
 ## Whole-model texture pass and cross-face coherence
 
 Per-face UV islands provide detail freedom; they must not turn the asset into unrelated face paintings. Never approve a face only from an isolated UV editor or flat image. Keep the full textured model visible and use this pass order:
@@ -93,9 +103,10 @@ Audit every visible face or named part after the whole-model base and value pass
 3. meso breakup such as grain, cracks, stains, bands, or wear;
 4. micro accents such as pixel clusters, chips, pores, or highlights;
 5. edge, recess, contact, or underside treatment;
-6. face-specific identity and relationship to neighbouring faces.
+6. face-specific identity and relationship to neighbouring faces;
+7. palette-ramp, cluster, stepped-shadow, and isolated-pixel coherence.
 
-If a face fails, do not solve it by simply enlarging the image or adding noise. Name the missing category, add a targeted refinement pass using the existing palette, density, light direction, and material rules, then audit the entire model again. Inspect the result at the intended game/display scale; detail that exists only when zoomed into the UV editor does not satisfy a high-detail profile. For small faces where a scale cannot be read, record `not applicable` and compensate with silhouette, value, or a clear material cue rather than forcing unreadable pixels.
+If a face fails, do not solve it by simply enlarging the image, adding noise, or scattering singleton pixels. Name the missing category, add a targeted refinement pass using the existing palette ramps, density, light direction, and material rules, then audit the entire model again. Inspect the result at the intended game/display scale; detail that exists only when zoomed into the UV editor does not satisfy a high-detail profile. For small faces where a scale cannot be read, record `not applicable` and compensate with silhouette, value, or a clear material cue rather than forcing unreadable pixels.
 
 Use role-matched reference textures to calibrate the scale and amount of purposeful detail, not to copy a pixel count blindly. A reference can show whether a material is expressed through broad bands, medium clusters, or tiny accents; the target profile decides which of those scales are feasible on the model's actual UV areas.
 
@@ -104,6 +115,8 @@ Do not:
 - assign one reference image to every face unless the target intentionally uses the same image/UV on every face;
 - let the reference filename decide the texture path or edition/version wiring;
 - use a screenshot, thumbnail, or one famous block/entity as the universal Minecraft baseline.
+- use automatic anti-aliasing, blur, linear filtering, or semi-transparent edge pixels to fake smooth shading;
+- leave conspicuous singleton pixels as “detail” without a named visual role.
 
 The expected output of reference use is a short record containing the selected mode (`direct assignment`, `adapted source`, or `observation-only`), source/provenance, compatibility checks, whole-model pass status, and the resulting geometry, UV, pixel/material, and runtime/resource-pack decisions. Direct assignment is valid only when the image dimensions, UV regions, face roles, atlas role, alpha/filtering, and target format are intentionally compatible; it still requires the whole-model integration pass. Otherwise adapt it or use it only as guidance.
 
@@ -130,7 +143,7 @@ Reference inspection may be skipped when the user explicitly wants an unrelated 
 6. Convert the observations into a target-specific plan: decide the silhouette and face roles first, explicitly unwrap/map every texture-bearing face, and reserve separate UV regions by default. Share or mirror a region only for the recorded identical-face exceptions. Then select the reference mode: assign directly when compatibility checks pass, adapt the source when the target differs, or use the observations to author pixels/material data when it is observation-only. A reference image does not replace the actual project UVs or the target format's catalog/model/entity links.
 7. If no suitable reference exists, label the relevant slot decision as an inference and verify it with the live project and target runtime.
 
-For an AI-generated draft, reference comparison is a cleanup aid: remove background halos, reduce accidental colours, preserve hard pixel edges, correct alpha, resize with nearest-neighbour when resampling is required, and align marks to the model's UV texels. Do not let the AI draft determine the UV layout by itself.
+For an AI-generated draft, reference comparison is a cleanup aid: remove background halos, reduce accidental colours, preserve hard pixel edges, correct alpha, resize with nearest-neighbour when resampling is required, align marks to the model's UV texels, replace continuous gradients with stepped near-colour ramps, and merge conspicuous singleton pixels unless they have a documented role. Do not let the AI draft determine the UV layout by itself.
 
 ## Concrete AI handoff format
 
@@ -144,6 +157,8 @@ Target: <edition/version/format/asset kind>
 Model UV: mandatory explicit unwrap; <texture size and per-face/box/custom UV layout>; shared/mirrored regions only for <named identical faces, or none>
 Detail profile: <base | developed | high/hero>; screen/display target: <game scale or pixel size>
 Per-face detail requirements: <material, macro, meso, micro, edge/contact, and unique identity requirements>
+Palette/shading: <near-colour ramps, 3–5 stepped shadow values, light direction, texture-vs-runtime split, and declared pixel-AA boundaries>
+Singleton policy: <remove conspicuous isolated pixels; retain only named visual exceptions>
 Observe: <face roles, material, palette, light direction, baked/runtime shading, alpha, tiling, overlays>
 Texture action: <assign directly | adapt source | author pixels/material from observations>
 Refine: do not stop at the base pass; audit detail density and add targeted passes for every failed applicable category

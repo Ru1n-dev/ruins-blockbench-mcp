@@ -10,7 +10,7 @@ Before calling an asset finished, confirm:
 2. The silhouette reads before texture detail is added.
 3. Every visible face has an intentional material/texture assignment.
 4. UV islands stay inside the image, seams are intentional, and texel density is coherent.
-5. Texture filtering is nearest-neighbour in the intended runtime; there is no antialiasing or semi-transparent fringe.
+5. Texture filtering is nearest-neighbour in the intended runtime; there is no unintended automatic antialiasing, blur, or semi-transparent fringe. Deliberate opaque pixel-AA is allowed only as a declared, limited transition using nearby palette colours.
 6. The palette has deliberate value steps and the light direction agrees between geometry and pixels.
 
 ## Shape and raster construction
@@ -22,12 +22,12 @@ Choose resolution from screen size and detail needs, not from a universal “16x
 Build pixels as clusters:
 
 - start with a base fill;
-- add a related shadow family and light family;
+- add a related shadow family and light family using named near-colour ramps;
 - place large material regions before accents;
-- use stepped edges and selective highlights;
+- use connected stepped shadows, selective highlights, and broad value transitions to avoid flat surfaces;
 - reserve the darkest values for cavities, contact shadows, and outlines only where they improve separation.
 
-Avoid random noise, smooth gradients, noisy AI micro-detail, excessive one-pixel outlines, and dither that competes with the material pattern. Review for banding, pillow shading, pancake shading, and jaggies.
+Avoid random noise, continuous/blurred gradients, noisy AI micro-detail, excessive one-pixel outlines, meaningless conspicuous singleton pixels, and dither that competes with the material pattern. Manual pixel-AA may be used only for selected diagonal/curved or tonal transitions, with 1–2 nearby opaque shades from the declared ramp. Review for banding, pillow shading, pancake shading, and jaggies.
 
 ## Asset-specific rules
 
@@ -45,7 +45,7 @@ An AI image is a concept draft, not a final resource-pack texture. Before sendin
 2. Crop or map it to the actual UV regions; do not assume a front-view illustration is an atlas.
 3. Reduce the palette into named roles: base, shadow, highlight, accent, and transparent.
 4. Resize with nearest-neighbour and align marks to integer texels.
-5. Replace smooth gradients and noisy micro-detail with purposeful clusters.
+5. Replace continuous gradients, automatic antialiasing, noisy micro-detail, and meaningless singleton pixels with purposeful near-colour clusters and stepped ramps.
 6. Inspect with `bb_texture_image`, then verify the mapped model with captures and diagnosis.
 
 ## Prompt/brief template
@@ -53,10 +53,13 @@ An AI image is a concept draft, not a final resource-pack texture. Before sendin
 ```text
 Minecraft-style [block/item/entity] texture for [Java/Bedrock/other provider].
 Use a [width]x[height] pixel grid, nearest-neighbour pixel art, hard-edged
-clustered pixels, a limited [N]-colour palette, and a single light direction
-from [direction]. Include [material motifs]. Preserve readable face regions,
-clean transparency where needed, no anti-aliasing, no blur, no smooth gradient,
-no photorealism, no PBR noise, no text, no watermark, and no background.
+clustered pixels, purposeful near-colour ramps, and a single light direction
+from [direction]. Include [material motifs] and broad stepped shading so no
+large surface is flat. Preserve readable face regions, clean transparency
+where needed, no automatic/filter anti-aliasing, no blur, no continuous
+gradient, no meaningless singleton pixels, no photorealism, no PBR noise,
+no text, no watermark, and no background. Allow only declared manual pixel-AA
+with adjacent opaque ramp colours at selected diagonal/curved transitions.
 The UV layout is [atlas/face regions/islands], so keep the important motif in
 these regions: [regions].
 ```
