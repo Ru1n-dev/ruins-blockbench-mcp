@@ -39,6 +39,39 @@ Per-face UV islands provide detail freedom; they must not turn the asset into un
 
 To prevent separate UV islands from losing unity, maintain one master palette/value chart, one texel-density target, stable orientation rules, a recorded edge-pair list for cross-face motifs, and consistent padding/filtering. Use a small allowed value range for face-role adjustments rather than picking unrelated per-face colours. If a discontinuity is intentional—such as a cut edge, underside, metal fitting, or separate overlay—record it as a material boundary instead of treating it as a UV error.
 
+## Initial high-density authoring rule
+
+For a finished or release-quality asset, the first texture pass must already target `high/hero` detail. Do not present a base-only or low-density first pass as the completed texture. A lower profile is allowed only when the request explicitly says `simple`, `prototype`, or `blockout`.
+
+The initial high-density pass must cover every sufficiently large visible face with the available purposeful detail scales: material variation and macro structure, meso breakup, micro accents, edge/contact treatment, and face-specific identity. Build these across the whole model before polishing any one face. If the chosen texture size cannot support the target, increase the atlas/UV budget or record the asset as a draft before proceeding; do not silently deliver a low-density result.
+
+## Detail-density audit and refinement loop
+
+Do not leave the instruction “make it detailed” implicit. Convert it into two separate targets:
+
+- **Texel density:** how many pixels are available per model unit or per visible face. Increasing the PNG size can increase this, but it does not prove that the texture contains more useful information.
+- **Visual detail density:** how much intentional, readable surface information is present at the target display size. This is increased by material breakup, face identity, grain, cracks, stains, wear, damage, edge treatment, and controlled pixel accents—not by random noise.
+
+Choose a profile before painting:
+
+- **base:** broad material regions, palette, face-role values, alpha/emission, and major marks;
+- **developed:** base plus medium-scale breakup and at least one purposeful local feature on every sufficiently large visible face, with edge/contact treatment where the geometry supports it;
+- **high/hero:** developed plus macro, meso, and micro detail wherever the UV area and target display size can show it, distinct face treatment, and no unexplained broad flat areas.
+
+
+Audit every visible face or named part after the whole-model base and value passes. Mark each applicable category `pass`, `fail`, or `not applicable`:
+
+1. material identity and base variation;
+2. macro structure or large material regions;
+3. meso breakup such as grain, cracks, stains, bands, or wear;
+4. micro accents such as pixel clusters, chips, pores, or highlights;
+5. edge, recess, contact, or underside treatment;
+6. face-specific identity and relationship to neighbouring faces.
+
+If a face fails, do not solve it by simply enlarging the image or adding noise. Name the missing category, add a targeted refinement pass using the existing palette, density, light direction, and material rules, then audit the entire model again. Inspect the result at the intended game/display scale; detail that exists only when zoomed into the UV editor does not satisfy a high-detail profile. For small faces where a scale cannot be read, record `not applicable` and compensate with silhouette, value, or a clear material cue rather than forcing unreadable pixels.
+
+Use role-matched reference textures to calibrate the scale and amount of purposeful detail, not to copy a pixel count blindly. A reference can show whether a material is expressed through broad bands, medium clusters, or tiny accents; the target profile decides which of those scales are feasible on the model's actual UV areas.
+
 Do not:
 
 - assign one reference image to every face unless the target intentionally uses the same image/UV on every face;
@@ -80,9 +113,12 @@ When asking an AI to use a reference, make the request explicit:
 Reference use mode: <direct assignment | adapted source | observation-only>
 Target: <edition/version/format/asset kind>
 Model UV: mandatory explicit unwrap; <texture size and per-face/box/custom UV layout>; shared/mirrored regions only for <named identical faces, or none>
+Detail profile: <base | developed | high/hero>; screen/display target: <game scale or pixel size>
+Per-face detail requirements: <material, macro, meso, micro, edge/contact, and unique identity requirements>
 Observe: <face roles, material, palette, light direction, baked/runtime shading, alpha, tiling, overlays>
 Texture action: <assign directly | adapt source | author pixels/material from observations>
-Verify: UV bounds, seams, alpha/filtering, and the required multi-view checklist
+Refine: do not stop at the base pass; audit detail density and add targeted passes for every failed applicable category
+Verify: UV bounds, seams, alpha/filtering, detail-density audit, and the required multi-view checklist
 Record: source paths, revision, observations, and decisions
 ```
 
