@@ -6,6 +6,33 @@ Use this gate during model and texture authoring. Texture reference is condition
 
 A reference texture can be used as a direct texture input, an adapted source, or observation-only material/shading guidance. Choose the mode explicitly based on UV compatibility, target format, edition/version, asset role, and provenance. Direct assignment is an exceptional exact-compatibility case; normally the reference guides a target-wide texture pass. A reference can provide the material, lighting, shadow, colour, alpha, and surface language; it does not automatically decide the model's UV layout or resource-pack wiring.
 
+## Reference call plan: count, purpose, and coverage
+
+Do not tell the authoring agent only to “look at some references” or “use references for the material”. Before opening or fetching images, write a `reference_call_plan` with an exact file count and one named purpose for every slot. Each slot must also name the model parts/faces/maps it covers, the expected observation or decision, and the fallback if the corpus has no suitable file. The plan is about coverage, not about collecting images for their own sake.
+
+For a finished `high/hero` asset, use this default minimum plan when reference sampling is in scope:
+
+| Slot | Default purpose | Minimum coverage and expected decision |
+|---|---|---|
+| R1 | family/style and face-role baseline | overall palette grammar, top/side/underside treatment, and the model's visible face roles |
+| R2 | material structure and variation | material-specific macro/meso breakup such as grain, stone clusters, metal variation, cloth/fur, stains, or cracks |
+| R3 | light, value, and baked-shadow treatment | light direction, value ladder, edge/recess/contact/underside cues, and the split between texture pixels and runtime lighting |
+| R4 | pixel/detail-density, edge-wear, and tiling comparator | readable pixel cluster scale, micro accents, edge wear, seams, border behaviour, and the target display-scale amount of detail |
+
+Add one more slot for every relevant companion role that is not covered by the first four: overlay/armor, eyes, emissive, animated strip, connected/tiling variant, tint, transparency/cutout, normal/roughness/PBR, or another format-specific map. A block normally needs R1–R4 plus connected/tiling or transparent variants when applicable. An entity normally needs R1–R4 plus body-overlay, eyes/emissive, armor/accessory, or animated companion references when those maps exist. A file may fill more than one slot only when its actual coverage is recorded; do not reuse a single material image by convenience and claim that all slots were covered.
+
+For `developed`, `simple`, `prototype`, or `blockout` work, a smaller exact count is acceptable, but it must still cover more than generic base colour when the task includes modeling and texturing. A directly compatible source can fill the direct-input slot, but it does not automatically answer unresolved face roles, lighting, density, edge, display, or companion-map questions. If a task is genuinely material-only, say so explicitly; otherwise “material only” is an incomplete reference plan.
+
+The plan can be written compactly as:
+
+```text
+Reference call count: <exact number of files>
+R1: <purpose> | covers <parts/faces/maps> | decide <output> | fallback <inference or alternate>
+R2: <purpose> | covers <parts/faces/maps> | decide <output> | fallback <inference or alternate>
+...
+Reference mode per file: <direct assignment | adapted source | observation-only>
+```
+
 ## UV policy: unwrap first; share only as an explicit exception
 
 UV unwrap/mapping is mandatory for every texture-bearing face. Here, “unwrap” means deliberately mapping every face or polygon to an in-bounds UV island/region before painting; it does not require an unnecessarily complex organic seam layout. The default for high-quality work is one intentional region per face or face role so each surface can receive its own material, brightness, shadow, wear, damage, and pixel placement.
@@ -97,11 +124,11 @@ Reference inspection may be skipped when the user explicitly wants an unrelated 
 
 1. Pin Edition/provider, game version, namespace/resource pack, source revision, and the intended asset role.
 2. Query the metadata corpus by role and family before opening images. For a block, include opaque, face-specific, transparent, animated, or PBR variants only when they are relevant. For an entity, include body, overlay, eye, emissive, moving-part, and companion maps when the format uses them.
-3. Select multiple same-role comparators rather than one famous asset. Prefer a small set that covers the expected material, alpha mode, scale, and animation/tint behaviour.
-4. Fetch only the selected files to an ignored temporary directory. Keep the generated provenance manifest with source URL, ref/tree SHA or local revision, original path, and fetched hash.
-5. Inspect each reference at native resolution. Record dimensions, alpha/transparent bounds, palette roles, light direction, cluster and edge behaviour, tiling, overlays, animation metadata, and companion maps. Record observations and decisions, not copied source pixels.
+3. Execute the `reference_call_plan`: select exactly the declared number of files, normally one file per slot. If a slot needs multiple comparators, split it into separately counted slots before fetching. Prefer role coverage over one famous asset. If a slot has no suitable file, record the fallback before continuing; do not silently substitute another material-only image.
+4. Fetch only the selected files to an ignored temporary directory. Keep the generated provenance manifest with source URL, ref/tree SHA or local revision, original path, fetched hash, plan slot, purpose, and covered parts/faces/maps.
+5. Inspect each reference at native resolution. Record dimensions, alpha/transparent bounds, palette roles, light direction, cluster and edge behaviour, tiling, overlays, animation metadata, companion maps, and the slot-specific observation. Record observations and decisions, not copied source pixels.
 6. Convert the observations into a target-specific plan: decide the silhouette and face roles first, explicitly unwrap/map every texture-bearing face, and reserve separate UV regions by default. Share or mirror a region only for the recorded identical-face exceptions. Then select the reference mode: assign directly when compatibility checks pass, adapt the source when the target differs, or use the observations to author pixels/material data when it is observation-only. A reference image does not replace the actual project UVs or the target format's catalog/model/entity links.
-7. If no suitable reference exists, label the relevant decision as an inference and verify it with the live project and target runtime.
+7. If no suitable reference exists, label the relevant slot decision as an inference and verify it with the live project and target runtime.
 
 For an AI-generated draft, reference comparison is a cleanup aid: remove background halos, reduce accidental colours, preserve hard pixel edges, correct alpha, resize with nearest-neighbour when resampling is required, and align marks to the model's UV texels. Do not let the AI draft determine the UV layout by itself.
 
@@ -110,6 +137,8 @@ For an AI-generated draft, reference comparison is a cleanup aid: remove backgro
 When asking an AI to use a reference, make the request explicit:
 
 ```text
+Reference call count: <exact number of files>
+Reference call plan: <slot, purpose, covered model parts/faces/maps, expected decision, fallback for each file>
 Reference use mode: <direct assignment | adapted source | observation-only>
 Target: <edition/version/format/asset kind>
 Model UV: mandatory explicit unwrap; <texture size and per-face/box/custom UV layout>; shared/mirrored regions only for <named identical faces, or none>
@@ -122,7 +151,7 @@ Verify: UV bounds, seams, alpha/filtering, detail-density audit, and the require
 Record: source paths, revision, observations, and decisions
 ```
 
-For each selected file, the AI should be able to answer: “Which mode was used, why is it compatible with this asset, and what material/shading/UV/runtime decision did it support?” If it cannot answer those questions, the reference was not used reliably.
+For each selected file, the AI should be able to answer: “Which plan slot and purpose did this file satisfy, which parts/faces/maps did it cover, which mode was used, why is it compatible with this asset, and what material/shading/UV/runtime decision did it support?” If it cannot answer those questions, or if every file only supports generic material colour, the reference set was not used reliably.
 
 ## Required multi-view review
 
@@ -155,6 +184,7 @@ At each view check geometry silhouette, unintended gaps/overlaps, z-fighting, UV
 The final review record should contain:
 
 - reference decision and, when used, the pinned source and selected asset paths;
+- the exact reference-call count, slot-to-file purpose map, covered model parts/faces/maps, expected decisions, and any fallbacks/inferences;
 - the model revision/checkpoint used for captures;
 - the view checklist with pass, fail, or not-applicable reason;
 - any `bb_diagnose`, texture/UV inspection, animation-frame, export, or in-game checks;
