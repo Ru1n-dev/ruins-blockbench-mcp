@@ -1,6 +1,6 @@
 # Minecraft-like model and asset style
 
-Read this reference for Minecraft-like geometry, silhouette, and asset-kind decisions. For raster quality, palette ramps, stepped shadows, manual pixel-AA, isolated pixels, UV detail, and AI texture cleanup, read [texture-quality.md](texture-quality.md) instead.
+Read this reference for Minecraft-like geometry, silhouette, and asset-kind decisions. For raster quality, palette ramps, part-appropriate value transitions, manual pixel-AA, isolated pixels, UV detail, and AI texture cleanup, read [texture-quality.md](texture-quality.md) instead.
 
 ## Hard gates
 

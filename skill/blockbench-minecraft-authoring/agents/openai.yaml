@@ -1,6 +1,6 @@
 interface:
   display_name: "Blockbench Minecraft Authoring"
   short_description: "Ruin's MCPでMinecraftモデル・UV・テクスチャを制作"
-  default_prompt: "$blockbench-minecraft-authoring を使って、Minecraft向けモデル・UV・テクスチャを一貫して作成して。"
+  default_prompt: "$blockbench-minecraft-authoring を使って、Minecraft向けモデル・UV・テクスチャを一貫して作成して。制作前に参照計画を必ず立て、完全一致する画像がなくても観察用参照を使い、パーツごとに自然につながるハイライトと必要な陰影段階を設計し、全体に材質に合った近似色の表面変異を加えて。"
 policy:
   allow_implicit_invocation: true

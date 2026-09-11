@@ -28,7 +28,7 @@ If a view is genuinely not visible in the target use, mark it `not applicable` w
 
 ## What to inspect in every view
 
-Check each named part independently and then check its relationship to neighbouring parts: geometry silhouette, gaps/overlaps, z-fighting, pivot behavior, UV stretching, seams, accidental mirrors, alpha/culling, shared lighting-convention consistency, part-local bright/side/dark flow, connected stepped shadows, prominent isolated pixels, and details that disappear at target scale. For textures also inspect whether same-part UV detail and form shading remain coherent across adjacent faces, whether part boundaries use the correct contact/material rule, and whether runtime lighting duplicates a baked cue.
+Check each named part independently and then check its relationship to neighbouring parts: geometry silhouette, gaps/overlaps, z-fighting, pivot behavior, UV stretching, seams, accidental mirrors, alpha/culling, shared lighting-convention consistency, part-local bright/side/dark flow, connected form shading and value transitions, highlight integration without floating patches or automatic outlines, whole-model near-colour variation without salt-and-pepper noise, prominent isolated pixels, and details that disappear at target scale. For textures also inspect whether same-part UV detail, form shading, and highlights remain coherent across adjacent faces, whether part boundaries use the correct contact/material rule, and whether runtime lighting duplicates a baked cue.
 
 If a problem is found, return to the responsible layer—geometry, pivot, UV, texture, animation, or display transform—then repeat the affected views rather than approving only the corrected camera.
 
