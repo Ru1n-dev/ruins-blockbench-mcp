@@ -1,5 +1,9 @@
 # Blockbench multi-view review
 
+## Geometry integrity gate
+
+Treat accidental floating elements, unsupported protrusions, unsnapped intended contacts, and gaps at intended connections as hard review failures. Confirm every element's support/attachment relation—or its explicitly recorded intentional-detached status—in orthographic and wireframe/solid views. A piece that only appears connected from one camera must be repaired before texture, animation, or export approval.
+
 Read this reference before final 3D review or export. A single attractive three-quarter screenshot is not completion evidence.
 
 ## Required structural views

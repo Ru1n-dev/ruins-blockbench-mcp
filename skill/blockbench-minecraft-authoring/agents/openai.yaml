@@ -1,6 +1,6 @@
 interface:
   display_name: "Blockbench Minecraft Authoring"
   short_description: "Ruin's MCPでMinecraftモデル・UV・テクスチャを制作"
-  default_prompt: "Use $blockbench-minecraft-authoring to author Minecraft-oriented models, UVs, textures, animations, and exports end to end through Ruin's BlockBenchMCP. Choose volumetric, rotated-cuboid, or card/plane/billboard representation per part; build Minecraft-like curves from consistently rotated cuboids, use material-focused references, verify plane alpha/culling and view limits, snap geometry joins, treat high/hero as texture density rather than cube count, and finish with a material-aware grime/weathering pass after shading and continuity review."
+  default_prompt: "Use $blockbench-minecraft-authoring to author Minecraft-oriented models, UVs, textures, animations, and exports end to end through Ruin's BlockBenchMCP. Choose volumetric, rotated-cuboid, or card/plane/billboard representation per part; build Minecraft-like curves from consistently rotated cuboids, use material-focused references, verify plane alpha/culling and view limits, snap and numerically verify every intended geometry join, reject accidental floating or unsupported pieces and hairline gaps before texture work or export, treat high/hero as texture density rather than cube count, and finish with a material-aware grime/weathering pass after shading and continuity review."
 policy:
   allow_implicit_invocation: true

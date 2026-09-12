@@ -27,6 +27,8 @@ For a curved silhouette or volume, use rotated cuboids around a shared construct
 
 ## Geometry joins and snapping
 
+**Structural hard gate:** Every element must have a support/attachment relation or an explicitly recorded intentional-detached status. A visually near-touching cube is not connected: any unplanned hairline gap or unsnapped intended contact vertex is a hard failure, even when textures or one camera hide it. Repair accidental floating cubes, unsupported protrusions, and disconnected joins before texture refinement or export. Intentional suspended, detached, or gapped forms require a design/reference justification and recorded support or detachment logic.
+
 When cubes or low-poly segments are intended to meet, their shared vertices, edges, or faces must use the same numeric coordinates. Use Blockbench's available grid/vertex/edge snapping during placement, or set exact coordinates when the operation does not expose snapping. For a rotated curve, align every segment to the same construction center/pivot and snap only the contacts that should connect; a small intentional overlap may close a faceted join, but it must be classified, kept free of z-fighting, and not used as a substitute for alignment. Verify the result in orthographic and wireframe/solid views: no hairline gaps, unintended overlaps, floating cubes, or z-fighting may remain at a join. Do not snap away an intentional gap, bevel, rotation, or overlap; classify and record those exceptions. Preserve the chosen 5- or 6-sided silhouette rather than forcing every element onto an unrelated axis.
 
 ## Card, plane, and billboard simplification

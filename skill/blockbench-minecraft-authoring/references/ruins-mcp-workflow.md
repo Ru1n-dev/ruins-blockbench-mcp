@@ -40,6 +40,8 @@ For a `card/plane/billboard` part, first confirm through `bb_capabilities` that 
 
 ## Verification bundle
 
+When the provider exposes structural assertions, request checks for no unintended floating elements and no gaps at intended joins. Otherwise compare intended contact vertices/edges and bounding boxes numerically where possible in the snapshot/diagnostics and orthographic wireframe or solid captures. A piece that only appears connected from one camera, or a cube whose contact vertices were not snapped or assigned the same coordinates, must be repaired before texture refinement or export.
+
 For a deliverable, prefer `bb_task(mode=verify)` with the checks relevant to the task. A useful bundle includes:
 
 ```text
