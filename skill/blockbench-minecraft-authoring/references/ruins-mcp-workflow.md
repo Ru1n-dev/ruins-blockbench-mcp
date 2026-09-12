@@ -36,6 +36,8 @@ For a new texture, use the typed texture operations exposed by the MCP. `texture
 
 Use typed UV strategies when they fit: density, transform, projection, or custom islands/operations. Choose texel density deliberately so adjacent parts do not look accidentally mismatched. Check island bounds, orientation, mirroring, intentional overlaps, and seam placement. For a block, inspect tile edges; for an entity, inspect joints and moving parts. For an item, inspect relevant display slots with the available editor/display controls.
 
+For a `card/plane/billboard` part, first confirm through `bb_capabilities` that the target provider supports the required plane/quad/billboard route. Map the full plane to the intended texture, bind the image through typed texture operations, and explicitly set or verify orientation, alpha/cutout or transparency, and face culling/double-sided behavior. Capture the intended front view plus an edge-on/back or alternate view when relevant. Do not silently substitute a cube or claim all-around volume behavior when the provider cannot represent the declared card mode.
+
 ## Verification bundle
 
 For a deliverable, prefer `bb_task(mode=verify)` with the checks relevant to the task. A useful bundle includes:

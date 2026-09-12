@@ -15,9 +15,25 @@ Before calling an asset finished, confirm:
 
 ## Shape and scale
 
-Use simple volumes for the major silhouette and reserve texture for material cues and fine detail. Do not build a smooth sphere, cylinder, or diagonal by accumulating many tiny nearly coplanar cubes. Use a deliberate rotated element or bone when the target format supports it.
+Use simple volumes for the major silhouette and reserve texture for material cues and fine detail. For Minecraft-like cube-oriented work, build curves and circular forms by rotating cuboid elements around a common construction center/pivot. A faceted low-poly profile is often a better fit than a mathematically smooth one; a pentagonal or hexagonal arrangement is a useful starting choice when the silhouette and target scale support it, but it is not a mandatory shape for every curve. Use as many segments as the target resolution, display distance, output format, and intended faceting require—avoid extra segments that do not improve the read. Use a mesh only when the target format explicitly requires a true custom polygon or contour.
 
 Choose resolution from screen size and detail needs, not from a universal “16x16” rule. A simple block may use 16x16; a complex entity may need a larger atlas while retaining a grid-aligned Minecraft-like look. Set dimensions, pivots, hierarchy, and display transforms for the target provider before refining the texture.
+
+## Geometry budget and curve strategy
+
+Keep geometry complexity separate from texture density. `high/hero` describes the amount of readable raster information, not the number of cubes. Start with economical primary and secondary volumes; add a cube only when it changes the silhouette, joint, contact, occlusion, or functional read, and record the reason in the geometry budget.
+
+For a curved silhouette or volume, use rotated cuboids around a shared construction center/pivot. Start with 5 or 6 perimeter directions for a rounded Minecraft-like part when appropriate, duplicate/rotate consistently, and increase the segment count when the silhouette, target scale, output format, or intended faceting benefits from it. A staircase-like result is acceptable when it is deliberate, proportionate, and visually improves the curve; it is not acceptable when it merely inflates geometry, introduces alignment problems, or hides a weak base shape. For a true custom polygon, use a mesh only when the target format explicitly supports and requires it. Inspect the untextured silhouette before adding surface detail.
+
+## Geometry joins and snapping
+
+When cubes or low-poly segments are intended to meet, their shared vertices, edges, or faces must use the same numeric coordinates. Use Blockbench's available grid/vertex/edge snapping during placement, or set exact coordinates when the operation does not expose snapping. For a rotated curve, align every segment to the same construction center/pivot and snap only the contacts that should connect; a small intentional overlap may close a faceted join, but it must be classified, kept free of z-fighting, and not used as a substitute for alignment. Verify the result in orthographic and wireframe/solid views: no hairline gaps, unintended overlaps, floating cubes, or z-fighting may remain at a join. Do not snap away an intentional gap, bevel, rotation, or overlap; classify and record those exceptions. Preserve the chosen 5- or 6-sided silhouette rather than forcing every element onto an unrelated axis.
+
+## Card, plane, and billboard simplification
+
+Use a `card/plane/billboard` representation as an intentional Minecraft-style simplification when the visible identity is primarily a flat silhouette or painted surface: foliage, flags, banners, signs, decals, flat ornaments, sprite-like details, or small/distant props are good candidates. A single textured plane is sufficient when one intended view is enough. Use crossed planes or another supported billboard arrangement only when an additional view is necessary and the target format/provider supports it.
+
+Before choosing this mode, confirm that the asset does not rely on thickness, parallax, close-up edge inspection, contact/occlusion, or an all-around silhouette. Record the plane orientation, intended camera/view, texture-to-plane UV mapping, alpha/cutout or transparency behavior, face culling/double-sided setting, and the views that are intentionally limited. The texture still needs a clean pixel-authored silhouette, material structure, and readable value treatment; a flat plane is not permission to submit a low-density or haloed image. Do not silently replace a volumetric part with a card merely because the texture is easier to make.
 
 ## Asset-specific rules
 
@@ -29,4 +45,4 @@ Choose resolution from screen size and detail needs, not from a universal “16x
 
 ## Style handoff
 
-When requesting a Minecraft-like asset, state the target provider and format, dimensions, coordinate convention, display scale, shared light convention, `part_shading_profile` for visually independent parts, material motifs, UV regions, and whether the result is `base`, `developed`, or `high/hero`. Then read [texture-quality.md](texture-quality.md) for the raster constraints and [multiview-review.md](multiview-review.md) for validation.
+When requesting a Minecraft-like asset, state the target provider and format, geometry mode per part (`volumetric`, `rotated-cuboid`, or `card/plane/billboard`), dimensions, coordinate convention, display scale, shared light convention, `part_shading_profile` for visually independent volumetric parts, material motifs, UV regions, and whether the result is `base`, `developed`, or `high/hero`. Then read [texture-quality.md](texture-quality.md) for the raster constraints and [multiview-review.md](multiview-review.md) for validation.

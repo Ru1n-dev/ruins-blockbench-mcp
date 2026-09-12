@@ -15,11 +15,13 @@ Never approve one face from an isolated UV editor or flat image. Use this pass o
 3. **Global lighting convention:** establish the shared light direction, palette/value relationship, and texture-versus-runtime split. This is a rule for interpreting light, not one gradient stretched across the entire model.
 4. **Part-local form-shading pass:** for each named soft, curved, or visually independent part, apply its own `part_shading_profile`—local bright/side/dark zones, a deliberate value ramp with as many connected tonal stages as the form and texture resolution require, shadow strength, and contact areas. There is no fixed stage count or upper limit, but a surface large enough to support intermediate pixels must read as a continuous transition.
 5. **Smooth-transition gate:** connect the bright, side, and dark zones of each applicable part with as many intermediate near-colours as the UV area, material, and display scale require. An unexplained abrupt tonal jump fails; the only exceptions are a real plane/material/cutout boundary or a face too small to support a transition, and each exception must be recorded.
+**Shadow-first gate:** before the surface-variation pass, suppress or ignore texture noise and inspect each applicable part in grayscale or with noise reduced. Its volume must still read through local bright/side/dark form shading, recess/underside values, and supported contact shadows. If it looks flat, strengthen the part's form shading and connected ramp first; do not use noise as a substitute.
 6. **Whole-model near-colour texture-noise pass:** apply a `surface_variation_profile` to every visible texture-bearing face. Use material-aware clusters and useful macro/meso/micro scales by default. Stronger or controlled stochastic variation is allowed when it expresses a named material cue or focal feature; record its purpose, region, palette/contrast, density, and distribution instead of rejecting it solely for being high-contrast. Do not leave a face unvaried without an explicit clean-material or scale exception.
 7. **Face-specific pass:** add grain, cracks, stains, wear, contact darkening, edge treatment, and unique material cues inside the relevant named part. Do not turn every face border into a shadow.
 8. **Same-part continuity pass:** inspect adjacent faces belonging to the same part in the textured 3D view. Align motifs and form shading across an edge, continue grain/damage where geometry implies continuity, match border values, and remove accidental seams.
 9. **Part-boundary pass:** inspect distinct parts together. Use a restrained contact/occlusion shadow only where the parts touch or overlap; do not force a gradient across a true seam or material boundary.
-10. **Whole-model balance:** inspect at the target game/display scale across front, back, sides, top, bottom, and three-quarter views. Strengthen disappearing parts and reduce details that dominate the asset.
+10. **Final grime/weathering pass:** after the model's material, form shading, surface variation, same-part continuity, and part-boundary rules are stable, apply intentional dirt or wear when the material or use supports it. Examples include a controlled inner-to-outer darkening, darkening in recesses and seams, lower/contact grime, dust, directional streaks, or handling wear. Use a material/usage mask and connected near-colour transitions; do not apply an unexplained global vignette or make every convex outer edge dark. Record the direction, region, strength, transition span, and clean-material exceptions.
+11. **Whole-model balance:** inspect at the target game/display scale across front, back, sides, top, bottom, and three-quarter views. Strengthen disappearing parts, reduce details that dominate the asset, and confirm the grime reads as material/use history rather than form-shadow duplication.
 
 Separate UV islands and separate parts may have different local form shading, but they share one material language and lighting convention. Maintain a master palette/value chart, one texel-density target, stable orientation rules, controlled padding/filtering, a recorded edge-pair list for same-part motifs, and a part-boundary list that classifies continuous surfaces, contact/occlusion edges, and intentional material seams.
 
@@ -52,11 +54,14 @@ Record a `surface_variation_profile` for each applicable named part or face grou
 part: <named group or mesh>
 scope: <all visible texture-bearing faces in this part>
 purpose: <material variation, grain, pores, stains, wear, plane breakup, or other named cue>
+material reference: <reference slot/file and provenance, or explicit inference/clean-material reason>
+material observations: <structure, directionality, roughness/reflectance, edge response, wear/contact behaviour, and detail scale>
 near-colour palette: <related values and the value distance from the base>
 cluster scales: <macro | meso | micro, as supported by the UV area>
 distribution: <direction, density, frequency, and material-specific pattern>
 contrast: <fine-noise amplitude kept separate from form contrast; default near-colour range; named stronger/high-contrast accents with their role and region>
 stochastic control: <none | controlled random/seeded distribution, with density, clustering, mask, and reason>
+final grime/weathering: <apply | clean-material exception; direction/mask such as inner-to-outer darkening, recess/seam accumulation, lower/contact grime, dust, streaks, or handling wear; strength and transition span>
 continuity: <same-part edges or motifs to connect | intentional termination>
 coverage record: <per-face applied | clean-material exception | too-small exception, with reason>
 ```
@@ -87,6 +92,14 @@ Use values close enough to preserve the material and part hierarchy for ordinary
 
 Keep the noise connected to the surface language. Unexplained or unbounded high-contrast specks, accidental stamps, and patterns that cross a true part/material boundary without a reason are defects. A high-contrast random or stochastic field is acceptable when its profile declares why it exists, where it is masked, how dense it is, and how it remains subordinate to the asset's form and focal hierarchy. Continue the variation across UV seams for the same continuous part, and recheck the full 3D model so local texture detail does not overpower the silhouette, form shading, or part relationships.
 
+## Final grime and weathering
+
+Treat grime/weathering as a final, material- and usage-aware finish after the form-shading, surface-variation, same-part continuity, and part-boundary passes. Apply it per named material or part when the reference, environment, handling, age, or use supports it; record `clean-material exception` when it does not.
+
+Useful masks include inner-to-outer darkening when the design calls for a gradual dirty edge or exposed-area falloff, recess/seam accumulation, lower or contact grime, dust on exposed upward areas, directional streaks, and handling wear. Build the effect with connected near-colour values and a declared spatial span. It may be subtle or strong when the material/use justifies it, but it must remain distinguishable from the part's fixed form shadow and from dynamic runtime lighting.
+
+Do not add an unexplained global vignette, a uniform dark overlay, automatic black borders on every convex edge, or dirt that crosses a true material/part boundary without a reason. Recheck the full 3D model at native and target scale, including before/after or grime-suppressed views, so the finish adds material history without flattening the form, creating halos, or becoming the only source of contrast.
+
 ## Deliberate pixel-AA and transparency
 
 Manual pixel-AA is a separate, limited tool. It may soften a selected diagonal or curved boundary, or bridge a controlled tonal transition, with adjacent near-colour steps from the declared ramp as required by the boundary and texture resolution. It must remain grid-aligned and fully opaque on opaque/cutout textures.
@@ -108,6 +121,8 @@ Use these checks:
 ## Initial high-density pass and detail audit
 
 For a finished or release-quality asset, the first texture pass must already target `high/hero` detail. Use `simple`, `prototype`, or `blockout` only when explicitly requested. Do not call a base-only or low-density first pass complete.
+
+`high/hero` is a raster/detail target, not permission to fragment the geometry. Keep the primary and secondary volume plan economical; put fine information into the UV texture unless an added geometric element changes the silhouette, contact, joint, or functional read.
 
 The initial pass must cover every visible texture-bearing face. For each sufficiently large visible face, apply material variation and macro structure, meso breakup, micro accents, edge/contact treatment, face identity, and a smooth form-shading/value transition appropriate to its named part. Smaller faces still need the purposeful variation and form/material cue their UV area supports; only record `not applicable` when the reason is explicit. Build this across all parts before polishing any one face. If the texture size cannot support the target, increase the atlas/UV budget or record the result as a draft; do not silently lower quality.
 
@@ -131,7 +146,8 @@ Before painting, create a `texture_coverage_matrix` for every visible face or na
 5. edge, recess, contact, or underside treatment;
 6. face-specific identity and relationship to neighbouring faces;
 7. readable form/recess contrast, smooth value-transition, palette-ramp, cluster, and isolated-pixel coherence; fine-noise amplitude is evaluated separately;
-8. whole-model near-colour texture-noise coverage and `texture_coverage_matrix` completeness.
+8. whole-model near-colour texture-noise coverage and `texture_coverage_matrix` completeness;
+9. final grime/weathering coverage or an explicit clean-material exception.
 
 If a face or part fails, name the missing category and add a targeted refinement pass using the existing palette ramps, density, shared lighting convention, part shading profile, surface-variation profile, and material rules. Do not solve it by only enlarging the image, adding unexplained or unbounded high-contrast specks, or scattering meaningless singleton pixels. If stronger stochastic accents are the intended solution, declare and constrain them in the profile, then audit the entire model again at the intended game/display scale; UV-editor-only detail does not satisfy `high/hero`. For small faces where a scale cannot be read, record `not applicable` with the reason and compensate with silhouette, value, or a clear material cue.
 
@@ -144,7 +160,8 @@ Treat an AI image as a concept draft. Before using it in typed texture operation
 3. reduce colours into named material/face/light roles and construct related near-colour ramps;
 4. resize with nearest-neighbour and align marks to integer texels;
 5. replace automatic-filter gradients, automatic AA, unexplained or unbounded high-contrast specks, and meaningless conspicuous singleton pixels with connected clusters and intentional near-colour ramps; retain stronger stochastic accents when they have a declared material or focal role and controlled distribution; use as many tonal stages as the part requires rather than forcing a preset ramp, and preserve the required structured near-colour texture noise;
-6. inspect `bb_texture_image`, then inspect the mapped model in 3D and rerun the cluster/detail audit.
+6. preserve the declared final grime/weathering pass or clean-material exception; do not clean away purposeful dirt as noise, and do not add an unbounded dark overlay;
+7. inspect `bb_texture_image`, then inspect the mapped model in 3D and rerun the cluster/detail audit.
 
 ## Texture versus runtime lighting record
 
@@ -158,4 +175,4 @@ Do not reproduce a reference's baked shadow with an equally strong duplicate run
 
 ## Quality record
 
-Record the target format/provider, texture size, texel-density target, palette ramps, shared lighting convention, `part_shading_profile` and `surface_variation_profile` for each applicable named part, alpha/filtering policy, UV-sharing exceptions, same-part edge pairs, part-boundary classifications, `texture_coverage_matrix`, detail profile, per-face/part audit, singleton exceptions, pixel-AA regions, texture/runtime lighting split, and the refinement passes performed.
+Record the target format/provider, texture size, texel-density target, palette ramps, shared lighting convention, `part_shading_profile` and `surface_variation_profile` for each applicable named part, alpha/filtering policy, UV-sharing exceptions, same-part edge pairs, part-boundary classifications, `texture_coverage_matrix`, final grime/weathering profiles and clean-material exceptions, detail profile, per-face/part audit, singleton exceptions, pixel-AA regions, texture/runtime lighting split, and the refinement passes performed.
