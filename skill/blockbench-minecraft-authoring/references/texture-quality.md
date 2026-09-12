@@ -15,7 +15,7 @@ Never approve one face from an isolated UV editor or flat image. Use this pass o
 3. **Global lighting convention:** establish the shared light direction, palette/value relationship, and texture-versus-runtime split. This is a rule for interpreting light, not one gradient stretched across the entire model.
 4. **Part-local form-shading pass:** for each named soft, curved, or visually independent part, apply its own `part_shading_profile`—local bright/side/dark zones, a deliberate value ramp with as many connected tonal stages as the form and texture resolution require, shadow strength, and contact areas. There is no fixed stage count or upper limit, but a surface large enough to support intermediate pixels must read as a continuous transition.
 5. **Smooth-transition gate:** connect the bright, side, and dark zones of each applicable part with as many intermediate near-colours as the UV area, material, and display scale require. An unexplained abrupt tonal jump fails; the only exceptions are a real plane/material/cutout boundary or a face too small to support a transition, and each exception must be recorded.
-6. **Whole-model near-colour texture-noise pass:** apply a `surface_variation_profile` to every visible texture-bearing face. Use structured, low-contrast, material-aware clusters and useful macro/meso/micro scales; do not leave a face unvaried without an explicit clean-material or scale exception.
+6. **Whole-model near-colour texture-noise pass:** apply a `surface_variation_profile` to every visible texture-bearing face. Use material-aware clusters and useful macro/meso/micro scales by default. Stronger or controlled stochastic variation is allowed when it expresses a named material cue or focal feature; record its purpose, region, palette/contrast, density, and distribution instead of rejecting it solely for being high-contrast. Do not leave a face unvaried without an explicit clean-material or scale exception.
 7. **Face-specific pass:** add grain, cracks, stains, wear, contact darkening, edge treatment, and unique material cues inside the relevant named part. Do not turn every face border into a shadow.
 8. **Same-part continuity pass:** inspect adjacent faces belonging to the same part in the textured 3D view. Align motifs and form shading across an edge, continue grain/damage where geometry implies continuity, match border values, and remove accidental seams.
 9. **Part-boundary pass:** inspect distinct parts together. Use a restrained contact/occlusion shadow only where the parts touch or overlap; do not force a gradient across a true seam or material boundary.
@@ -55,7 +55,8 @@ purpose: <material variation, grain, pores, stains, wear, plane breakup, or othe
 near-colour palette: <related values and the value distance from the base>
 cluster scales: <macro | meso | micro, as supported by the UV area>
 distribution: <direction, density, frequency, and material-specific pattern>
-contrast: <low enough to preserve form/value hierarchy; named stronger accents if any>
+contrast: <fine-noise amplitude kept separate from form contrast; default near-colour range; named stronger/high-contrast accents with their role and region>
+stochastic control: <none | controlled random/seeded distribution, with density, clustering, mask, and reason>
 continuity: <same-part edges or motifs to connect | intentional termination>
 coverage record: <per-face applied | clean-material exception | too-small exception, with reason>
 ```
@@ -78,13 +79,13 @@ This is not permission for a photographic gradient, blur, or automatic filter. U
 
 ## Whole-model near-colour texture noise
 
-Here, “texture noise” means structured, low-amplitude near-colour variation that makes the material feel inhabited and prevents dead-flat pixels. It does not mean unstructured salt-and-pepper scatter. After the global material/value pass and local form-shading pass, apply it across the whole visible model.
+Here, “texture noise” usually means structured, near-colour variation that makes the material feel inhabited and prevents dead-flat pixels. Near-colour variation is the default, but stronger or controlled stochastic accents are allowed when the material or focal design requires them. Unexplained or unbounded salt-and-pepper scatter is still a defect. After the global material/value pass and local form-shading pass, apply the declared variation across the whole visible model.
 
 Every visible texture-bearing face must have either applied near-colour texture noise or an explicit recorded exception such as a deliberately clean/uniform material, transparent/cutout limitation, emissive treatment, or insufficient texel area. A missing or unrecorded face is a failure, not an optional omission.
 
-Use values close enough to preserve the material and part hierarchy, but varied enough to prevent broad dead-flat regions. Choose cluster size, direction, frequency, and contrast from the material and geometry: grain follows wood direction, stone uses irregular connected breakup, cloth uses soft directional variation, metal uses restrained broad variation, and stains/wear follow contact or use patterns. Mix macro, meso, and micro scales when the texture resolution supports them; do not distribute one identical pattern over every part.
+Use values close enough to preserve the material and part hierarchy for ordinary surface variation, but allow stronger contrast when it communicates a specific material cue, damage, focal feature, or readable mark. Choose cluster size, direction, frequency, contrast, and—when needed—controlled random distribution from the material and geometry: grain follows wood direction, stone uses irregular connected breakup, cloth uses soft directional variation, metal uses restrained broad variation, and stains/wear follow contact or use patterns. Mix macro, meso, and micro scales when the texture resolution supports them; do not distribute one identical pattern over every part.
 
-Keep the noise connected to the surface language. Unstructured high-contrast specks, accidental stamps, and patterns that cross a true part/material boundary without a reason are defects. Continue the variation across UV seams for the same continuous part, and recheck the full 3D model so local texture detail does not overpower the silhouette, form shading, or part relationships.
+Keep the noise connected to the surface language. Unexplained or unbounded high-contrast specks, accidental stamps, and patterns that cross a true part/material boundary without a reason are defects. A high-contrast random or stochastic field is acceptable when its profile declares why it exists, where it is masked, how dense it is, and how it remains subordinate to the asset's form and focal hierarchy. Continue the variation across UV seams for the same continuous part, and recheck the full 3D model so local texture detail does not overpower the silhouette, form shading, or part relationships.
 
 ## Deliberate pixel-AA and transparency
 
@@ -99,7 +100,7 @@ Treat a conspicuous singleton pixel as a defect by default. Remove it or merge i
 Use these checks:
 
 - every new colour should belong to a meaningful cluster, shadow band, border, or intentional exception;
-- a high-contrast pixel that attracts attention without improving material, form, or focal point fails;
+- a high-contrast pixel or cluster that attracts attention without improving material, form, or focal point fails;
 - a one-pixel endpoint may be valid when it is the intentional end of a larger diagonal, crack, or motif;
 - review the raster at native 1:1 and the mapped model at target game/display scale;
 - after merging/removing noise, recheck adjacent faces so the whole-model motif and value balance remain intact.
@@ -113,7 +114,7 @@ The initial pass must cover every visible texture-bearing face. For each suffici
 Keep two targets separate:
 
 - **Texel density:** pixels available per model unit or visible face. A larger PNG does not prove useful detail.
-- **Visual detail density:** intentional, readable information at the target scale. Use material breakup, face identity, grain, cracks, stains, wear, damage, edge treatment, smooth form shading/value transitions, and controlled near-colour texture noise—not unstructured high-contrast specks.
+- **Visual detail density:** intentional, readable information at the target scale. Use material breakup, face identity, grain, cracks, stains, wear, damage, edge treatment, smooth form shading/value transitions, controlled near-colour texture noise, and declared stronger stochastic accents where appropriate—not unexplained or unbounded high-contrast specks.
 
 Choose a profile before painting:
 
@@ -132,7 +133,7 @@ Before painting, create a `texture_coverage_matrix` for every visible face or na
 7. readable form/recess contrast, smooth value-transition, palette-ramp, cluster, and isolated-pixel coherence; fine-noise amplitude is evaluated separately;
 8. whole-model near-colour texture-noise coverage and `texture_coverage_matrix` completeness.
 
-If a face or part fails, name the missing category and add a targeted refinement pass using the existing palette ramps, density, shared lighting convention, part shading profile, surface-variation profile, and material rules. Do not solve it by only enlarging the image, adding unstructured high-contrast specks, or scattering singleton pixels. Audit the entire model again and inspect at the intended game/display scale; UV-editor-only detail does not satisfy `high/hero`. For small faces where a scale cannot be read, record `not applicable` with the reason and compensate with silhouette, value, or a clear material cue.
+If a face or part fails, name the missing category and add a targeted refinement pass using the existing palette ramps, density, shared lighting convention, part shading profile, surface-variation profile, and material rules. Do not solve it by only enlarging the image, adding unexplained or unbounded high-contrast specks, or scattering meaningless singleton pixels. If stronger stochastic accents are the intended solution, declare and constrain them in the profile, then audit the entire model again at the intended game/display scale; UV-editor-only detail does not satisfy `high/hero`. For small faces where a scale cannot be read, record `not applicable` with the reason and compensate with silhouette, value, or a clear material cue.
 
 ## AI texture cleanup
 
@@ -142,7 +143,7 @@ Treat an AI image as a concept draft. Before using it in typed texture operation
 2. crop or map it to the actual UV regions; never assume a front-view illustration is an atlas;
 3. reduce colours into named material/face/light roles and construct related near-colour ramps;
 4. resize with nearest-neighbour and align marks to integer texels;
-5. replace automatic-filter gradients, automatic AA, unstructured high-contrast specks, and meaningless conspicuous singleton pixels with connected clusters and intentional near-colour ramps; use as many tonal stages as the part requires rather than forcing a preset ramp, and preserve the required structured near-colour texture noise;
+5. replace automatic-filter gradients, automatic AA, unexplained or unbounded high-contrast specks, and meaningless conspicuous singleton pixels with connected clusters and intentional near-colour ramps; retain stronger stochastic accents when they have a declared material or focal role and controlled distribution; use as many tonal stages as the part requires rather than forcing a preset ramp, and preserve the required structured near-colour texture noise;
 6. inspect `bb_texture_image`, then inspect the mapped model in 3D and rerun the cluster/detail audit.
 
 ## Texture versus runtime lighting record

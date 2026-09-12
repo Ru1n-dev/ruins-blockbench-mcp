@@ -11,7 +11,7 @@ This file is kept as a compatibility entrypoint for existing links. Read only th
 - Do not use references only for generic material colour when face roles, lighting, detail density, edge treatment, or companion maps remain unresolved.
 - Do not stretch one global gradient across unrelated parts; use the shared lighting convention plus a recorded local shading profile per named part.
 - Do not accept an abrupt tonal jump on a surface that can support intermediate near-colours; make the local bright-to-side-to-dark transition continuous-looking.
-- Do not omit the required near-colour texture noise from any visible face. Use material-aware connected clusters; only unstructured high-contrast specks and salt-and-pepper scatter are defects.
+- Do not omit the required surface variation from any visible face. Use material-aware connected clusters by default; stronger or controlled stochastic accents are allowed when their material/focal purpose, region, contrast, density, and distribution are recorded. Unexplained or unbounded high-contrast specks and salt-and-pepper scatter are defects.
 - Do not call a texture finished with a flat base-only pass for a finished asset; use the quality reference and its audit.
 - Do not treat automatic blur, filtering AA, semi-transparent halos, or conspicuous meaningless singleton pixels as Minecraft-style detail.
 - Do not export before the required multi-view checklist and diagnostics are recorded.

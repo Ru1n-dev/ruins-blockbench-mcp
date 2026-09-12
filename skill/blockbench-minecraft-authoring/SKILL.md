@@ -5,55 +5,40 @@ description: Create, edit, and review Minecraft-oriented Blockbench models, UVs,
 
 # Blockbench Minecraft Authoring
 
-Use this skill for a Minecraft-oriented Blockbench block, item, weapon, prop, entity, creature, character, animated model, texture, resource-pack asset, or compatible export. The live Blockbench project is the source of truth; a standalone PNG, OBJ, or hand-edited JSON is only an intermediate or export.
+Use this skill for end-to-end Minecraft-oriented Blockbench work through Ruin's BlockBenchMCP: blocks, items, props, entities, animations, textures, resource-pack assets, and compatible exports. The live Blockbench project is the source of truth; PNG, OBJ, or hand-edited JSON is only an intermediate or export.
 
-## Read the relevant detail
+## Read by phase
 
-Keep the entrypoint short, but do not make reference use optional for Minecraft asset authoring. Before any geometry, UV, texture, or material decision, read the reference plan and record a reference decision. The only normal skip is an explicitly unrelated custom art direction with no Minecraft style or compatibility target; record that reason.
+Read only the focused reference needed for the current phase, but do not skip the reference decision or the quality review.
 
-- Read [references/ruins-mcp-workflow.md](references/ruins-mcp-workflow.md) for the live Ruin's BlockBenchMCP route.
-- Read [references/reference-plan.md](references/reference-plan.md) before every modeling, UV, texture, or material task. For Minecraft-like or `high/hero` work, default to observation-only or adapted references; an exact matching source is not required.
-- Read [references/texture-quality.md](references/texture-quality.md) for any modeling, UV, texture, pixel, material, shading, or AI-texture task.
-- Read [references/multiview-review.md](references/multiview-review.md) before the final 3D review or export.
-- Read [references/minecraft-style.md](references/minecraft-style.md) when Minecraft-like geometry, palette, or asset-specific style decisions need review.
-- Read [references/corpus-reference.md](references/corpus-reference.md) only when vanilla reference coverage, a whole category, or an edition/version refresh is required.
-- Read [references/blockbench-wiki-guardrails.md](references/blockbench-wiki-guardrails.md) only when format, animation, `.bbmodel`, plugin, or export details require it.
-- Read [references/bb-academy-notes.md](references/bb-academy-notes.md) only when the reviewed video material is relevant, and preserve its evidence limits.
+- [references/ruins-mcp-workflow.md](references/ruins-mcp-workflow.md): live MCP discovery, routes, checkpoints, diagnostics, and recovery.
+- [references/reference-plan.md](references/reference-plan.md): before every modeling, UV, texture, or material task; required call count, purpose, coverage, provenance, and fallback.
+- [references/minecraft-style.md](references/minecraft-style.md): Minecraft-like silhouette, scale, palette, and asset-kind decisions.
+- [references/texture-quality.md](references/texture-quality.md): before any UV, texture, pixel, material, shading, or AI-texture task; the detailed raster and coverage contract.
+- [references/multiview-review.md](references/multiview-review.md): before final 3D review or export.
+- [references/corpus-reference.md](references/corpus-reference.md): only for whole-category vanilla coverage or an Edition/version corpus refresh.
+- [references/blockbench-wiki-guardrails.md](references/blockbench-wiki-guardrails.md): only when format, animation, `.bbmodel`, plugin, or export details require it.
+- [references/bb-academy-notes.md](references/bb-academy-notes.md): only when the reviewed video material is relevant; preserve its evidence limits.
 
-## Authority and scope
+## Execution contract
 
-Resolve disagreements in this order: live Blockbench/MCP schemas and `bb_capabilities`; this repository's `AGENTS.md` and authoritative Blockbench version/source; current official API/reference; reviewed tutorial material; labelled inference verified before mutation. In this Ruin's repository, Blockbench Desktop 5.1.6 and source commit `794e964e966b6783b4e9b98ecbdda5152c0620cc` are authoritative when APIs differ.
+- Resolve the target Edition/provider, game version, Blockbench format, coordinate convention, codec, hierarchy, pivots, silhouette, display scale, and requested detail profile before mutation. In this repository, live schemas/`bb_capabilities`, `AGENTS.md`, Blockbench Desktop 5.1.6, and source commit `794e964e966b6783b4e9b98ecbdda5152c0620cc` are authoritative when sources disagree.
+- Treat geometry, explicit UVs, raster pixels, animation, display transforms, and output wiring as one contract. Re-check dependent layers after each change.
+- Map every texture-bearing face before painting. Per-face or per-island UVs are the default; sharing or mirroring requires named identical faces and a recorded reason.
+- Use `high/hero` as the default finished quality. `simple`, `prototype`, or `blockout` must be explicitly requested; a base-only first pass is a draft.
+- Before editing, record `reference: use` with the exact call plan, or `reference: skip` with a reason. For Minecraft-like/high-quality work, use is the default and observation-only references are valid when no exact texture exists.
+- For texture-specific rules, profiles, controlled stronger noise, smooth local shading, pixel cleanup, texture/runtime lighting separation, and audits, follow `texture-quality.md` as the single detailed source of truth.
+- Do not force vanilla styling onto custom, stylized, modded, or non-Minecraft work. This Skill does not authorize MCP implementation changes unless requested.
 
-Do not force vanilla styling onto a custom, stylized, modded, or non-Minecraft request. This asset-authoring Skill does not authorize changes to the MCP implementation unless the user asks for them.
+## Six-phase workflow
 
-## Non-negotiable gates
-
-- Establish the target Edition/provider, game version, Blockbench format, coordinate convention, codec, hierarchy, pivots, and silhouette before editing.
-- Treat geometry, explicit UVs, raster pixels, animation, display transforms, and output wiring as one contract. Re-check dependent layers after a change.
-- Unwrap/map every texture-bearing face before painting. Use separate per-face or per-island UV regions by default; UV sharing or mirroring requires named identical faces and a recorded reason.
-- Finished assets start at `high/hero` detail unless `simple`, `prototype`, or `blockout` is explicitly requested. A base-only first pass is a draft.
-- Before editing, record a reference decision for every modeling/UV/texture task: `use` with an exact call plan, or `skip` with an explicit reason. For Minecraft-like and `high/hero` assets, `use` is the default and observation-only references are valid even when no exact target texture exists. Never silently skip references or treat the absence of a perfect match as a skip reason.
-- Build textures in whole-model passes: shared material base, shared lighting convention, part-local form shading with smooth connected transitions, face-specific detail, whole-model near-colour texture noise, then textured 3D integration. Choose the number of tonal stages from the part, material, texture resolution, and display scale rather than a fixed limit, but do not accept an unexplained abrupt jump where intermediate pixels can be authored.
-- For every visible soft, curved, or volumetric part, make the bright-to-side-to-dark progression visually continuous with intermediate near-colours wherever its UV area supports them. Hard tonal breaks are allowed only for a real plane/material/cutout boundary or a face too small to support a transition, and the exception must be recorded.
-- Apply a `surface_variation_profile` to every visible texture-bearing face. The required near-colour texture noise is structured, low-contrast, material-aware, and cluster-based; only unstructured high-contrast specks and salt-and-pepper scatter are defects.
-- Set form-shading contrast, transition smoothness, and fine-noise amplitude independently. Low contrast applies to fine near-colour noise; form shading must have enough value separation for the intended relief to read at target scale. Preserve that separation while connecting it with intermediate colours. If relief looks flat, strengthen the local shading first while keeping fine noise stable; do not add bright rim or specular accents.
-- Define a `part_shading_profile` for each named soft/curved or visually independent part: local form axis, bright/side/dark zones, shadow strength, contact areas, edge rule, and whether adjacent parts connect or remain an intentional boundary. Do not stretch one gradient across unrelated parts.
-- Manual pixel-AA is permitted only as a declared, grid-aligned transition on selected diagonal/curved or tonal boundaries. Automatic blur/filter AA, semi-transparent edge smoothing, and halos are forbidden for opaque/cutout textures.
-- Prominent isolated pixels are defects unless their visual role is explicit. Merge or remove them; audit clusters and ramps at 1:1 and target game scale.
-- Use the exact reference-call plan with count, purpose, covered parts/faces/maps, expected decision, and fallback. A full model task is not referenced adequately when every image is used only for generic material colour.
-- Before export, run the applicable diagnostics and [multi-view review](references/multiview-review.md); report untested runtime behavior instead of claiming compatibility.
-
-## Short workflow
-
-1. Discover the live target with `bb_status`, `bb_projects`, and `bb_capabilities`; never silently convert providers or formats.
-2. Establish the asset contract and choose the MCP route: `bb_task` for intent-level work and verification, `bb_plan_edit` for exact typed/surgical edits, and `bb_native_operation` only for a capability-discovered gap.
-3. Read [references/reference-plan.md](references/reference-plan.md) before committing to silhouette, UVs, palette, or material. Write the call plan and inspect the selected roles; if the task is explicitly unrelated custom art, record the skip reason instead.
-4. Plan hierarchy and silhouette, then explicit UV regions and atlas budget, then a `part_shading_profile` and `surface_variation_profile` for each applicable named part, then animation/display requirements. Keep texel density, orientation, padding, and same-part cross-face continuity coherent.
-5. Read [references/texture-quality.md](references/texture-quality.md), author the initial high-density whole-model texture with smooth local value transitions and required near-colour texture noise, and run its per-face coverage/detail/cluster audit. Refine failed categories and re-audit the whole model.
-6. Apply changes with checkpoints and Undo boundaries. After timeout, stale revision, external edit, or unexpected selection, inspect state before retrying; never blindly resend a mutation.
-7. Read [references/multiview-review.md](references/multiview-review.md), inspect the required structural and asset-specific views, run `bb_diagnose`/texture/animation checks as relevant, and repeat affected views after fixes.
-8. Export only after verification with the target codec and `bb_export`; retain the native project checkpoint and distinguish verified behavior from untested game/runtime behavior.
+1. **Discover:** run `bb_status`, `bb_projects`, and `bb_capabilities`; confirm the live target and choose `bb_task`, `bb_plan_edit`, or a capability-discovered `bb_native_operation` gap.
+2. **Reference:** read `reference-plan.md`, write the exact call plan, inspect selected roles, and record provenance and decisions before committing to shape, UV, palette, or material.
+3. **Plan:** establish hierarchy and silhouette, explicit UV regions/atlas budget, per-part shading and surface-variation profiles, then animation/display requirements.
+4. **Author:** read `texture-quality.md`; create the high-density whole-model texture, including per-face coverage, smooth part-local transitions, material variation, and any declared stronger stochastic accents. Audit and refine the whole model.
+5. **Apply safely:** use coherent plans, checkpoints, and Undo boundaries. After timeout, stale revision, external edit, or unexpected selection, inspect the current state and make a fresh plan; never blindly resend a mutation.
+6. **Review/export:** read `multiview-review.md`, inspect required structural and asset-specific views, run relevant diagnostics, repeat affected views after fixes, and export with the verified target codec. Keep the native project checkpoint and report untested runtime behavior.
 
 ## Completion gate
 
-Do not call the asset finished until the applicable checks pass: format/provider/codec; hierarchy, pivots, dimensions, and silhouette; intentional texture wiring on every visible face; explicit in-bounds UVs with documented sharing exceptions; coherent texel density, palette ramps, smooth connected value transitions, whole-model near-colour texture-noise coverage, same-part cross-face motifs, and filtering; every named part has a recorded local shading profile and every applicable face has a recorded surface-variation profile; their boundaries are classified as continuous, contact/occlusion, or intentional material separation; per-face coverage and high-density detail audit or an explicitly requested lower profile; no meaningless isolated pixels, unstructured high-contrast specks, automatic AA, blur, halo, or double shading; a recorded reference decision, exact call plan and provenance when `use` was selected, or an explicit skip reason when `skip` was selected; required multi-view captures/checks; diagnostics and export, or a clear record of what was not run.
+Finish only when the target format/provider/codec, hierarchy/silhouette, intentional texture wiring, in-bounds UVs, texel density, per-part profiles, whole-model texture coverage, smooth value transitions, controlled surface variation, same-part continuity, filtering/alpha behavior, and texture-versus-runtime lighting split have been audited. Unintentional isolated pixels, uncontrolled high-contrast scatter, automatic AA/blur/halo, and double shading must not remain. Required reference decisions, multi-view checks, diagnostics, and export must be recorded; untested behavior must remain explicitly unclaimed.
